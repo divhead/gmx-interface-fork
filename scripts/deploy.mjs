@@ -91,6 +91,7 @@ async function updateDnslinkNetifly(cid) {
     return;
   }
 
+  
   console.log("Create a new DNS record");
   const newRecord = await requestNetifly(`/dns_zones/${env.NETIFLY_DNS_ZONE_ID}/dns_records`, {
     method: "POST",
