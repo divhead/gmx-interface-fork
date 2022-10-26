@@ -15,12 +15,16 @@ const env = envalid.cleanEnv(process.env, {
   NETLIFY_API_KEY: str(),
   NETLIFY_DNS_ZONE_ID: str(),
   NETLIFY_DNS_LINK: str(),
+
+  PINATA_API_KEY: str(),
+  PINATA_API_SECRET: str(),
+  PINATA_PIN_ALIAS: str(),
 });
 
 main();
 
 async function main() {
-  const cid = await getFleekIpfsHash();
+  const cid = await uploadToPinata('./build');
 
   await waitForCloudflareIpfs(cid);
 
@@ -65,6 +69,69 @@ async function getFleekIpfsHash() {
 
   return ipfsHash;
 }
+
+async function uploadToPinata(path) {
+  const pinata = pinataSDK(env.PINATA_API_KEY, env.PINATA_API_SECRET);
+
+  console.log("Upload to Pinata");
+
+  await pinata.testAuthentication();
+
+  console.log("Auth successful");
+
+  const previousPins = await pinata.pinList({
+    metadata: { name: env.PINATA_PIN_ALIAS },
+    status: "pinned",
+  });
+
+  if (previousPins.rows.length) {
+    console.log(`Found previous pins: ${previousPins.rows.map((r) => r.ipfs_pin_hash).join(", ")}`);
+  }
+
+  console.log("Uploading assets");
+
+  const pinResult = await pinata.pinFromFS(path, {
+    pinataMetadata: {
+      name: env.PINATA_PIN_ALIAS,
+    },
+    pinataOptions: {
+      customPinPolicy: {
+        regions: [
+          {
+            id: "FRA1",
+            desiredReplicationCount: 2,
+          },
+          {
+            id: "NYC1",
+            desiredReplicationCount: 2,
+          },
+        ],
+      },
+      cidVersion: 0,
+    },
+  });
+
+  console.log(`Uploaded: ${pinResult.IpfsHash}`);
+
+  const pinsToClean = previousPins.rows.filter((row) => row.ipfs_pin_hash !== pinResult.IpfsHash);
+
+  if (pinsToClean.length) {
+    console.log(`Cleaning up the previous pins`);
+
+    for (let pin of previousPins.rows) {
+      try {
+        await pinata.unpin(pin.ipfs_pin_hash);
+        console.log(`${pin.ipfs_pin_hash} - deleted`);
+      } catch (e) {
+        console.log(`Failed to unpin ${pin.ipfs_pin_hash}`);
+        console.error(e);
+      }
+    }
+  }
+
+  return pinResult.IpfsHash;
+}
+
 
 async function updateDnslinkNetlify(cid) {
   if (!cid) {

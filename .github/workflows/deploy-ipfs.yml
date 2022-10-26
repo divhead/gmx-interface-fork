@@ -22,6 +22,10 @@ jobs:
       NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
       NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
 
+      # PINATA_API_KEY: ${{ secrets.NETLIFY_DNS_LINK }}
+      # : ${{ secrets.NETLIFY_DNS_LINK }}
+      # PINATA_: ${{ secrets.NETLIFY_DNS_LINK }}
+
     steps:
       - uses: actions/checkout@v3
       - name: Deploy
@@ -31,4 +35,5 @@ jobs:
           cache: yarn
 
       - run: yarn
+      - run: yarn build
       - run: yarn deploy
