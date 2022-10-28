@@ -65,7 +65,18 @@ jobs:
           cache: yarn
     
       - run: yarn
-    
+
+      - name: Puppeter
+        id: resolve-cid
+        uses: maku693/action-puppeteer-script@v0
+        with:
+          script: |
+            const page = await browser.newPage();
+            await page.goto('https://cloudflare-ipfs.com/ipfs/${{ needs.deploy.outputs.cid }}');
+            const title = await page.$eval('title', el => el.textContent);
+            return title;
+      - run: echo '${{ steps.resolve-cid.outputs.result }}'
+
       - name: Update DNS Netlify
         env:
           NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
