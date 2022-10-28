@@ -16,6 +16,9 @@ jobs:
 
     environment: deploy
 
+    outputs:
+      cid: ${{ steps.pinata.outputs.hash }}
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -33,6 +36,7 @@ jobs:
           path: './build'
           pinata-api-key: ${{ secrets.PINATA_API_KEY }}
           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
+          remove-old: true
 
   post_deploy:
     needs: deploy
@@ -41,12 +45,20 @@ jobs:
     environment: deploy
 
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: yarn
+
+      - run: yarn
+
       - name: Crust
         uses: crustio/ipfs-crust-action@v2.0.3
         continue-on-error: true
         timeout-minutes: 2
         with:
-          cid: ${{ needs.deploy.steps.pinata.outputs.hash }}
+          cid: ${{ needs.deploy.outputs.cid }}
           seeds: ${{ secrets.CRUST_SEEDS }}
 
       - name: Update DNS
