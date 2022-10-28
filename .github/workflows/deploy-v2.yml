@@ -25,18 +25,18 @@ jobs:
         with:
           node-version: 16.x
           cache: yarn
+  
       - run: yarn
       - run: yarn build
 
       - name: Pinata
         id: pinata
-        uses: anantaramdas/ipfs-pinata-deploy-action@39bbda1ce1fe24c69c6f57861b8038278d53688d
-        with:
-          pin-name: GMX Site
-          path: './build'
-          pinata-api-key: ${{ secrets.PINATA_API_KEY }}
-          pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
-          remove-old: true
+        env:
+          PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
+          PINATA_API_SECRET: ${{ secrets.PINATA_API_SECRET_KEY }}
+          PINATA_PIN_ALIAS: gmx-site
+          BUILD_PATH: ./build
+        run: node ./scripts/pinata-upload.mjs
 
       - name: Crust
         uses: crustio/ipfs-crust-action@v2.0.3
@@ -46,23 +46,8 @@ jobs:
           cid: ${{ steps.pinata.outputs.hash }}
           seeds: ${{ secrets.CRUST_SEEDS }}
 
-  resolve-cid:
-    needs: deploy
-    runs-on: ubuntu-latest
-
-    environment: deploy
-
-    steps:
-      - uses: cypress-io/github-action@v4
-        with:
-          install: true
-          browser: chrome
-          config-file: cypress.release.config.ts
-          config: baseUrl=https://cloudflare-ipfs.com/ipfs/${{ needs.deploy.outputs.cid }}
-
   update-dns:
     needs: 
-      - resolve-cid
       - deploy
 
     runs-on: ubuntu-latest
@@ -71,16 +56,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+  
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
           cache: yarn
+    
       - run: yarn
+    
       - name: Update DNS Netlify
         env:
           NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
           NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
           NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
           IPFS_HASH: ${{ needs.deploy.outputs.hash }}
-        
         run: node ./scripts/update-dns-netlify.mjs

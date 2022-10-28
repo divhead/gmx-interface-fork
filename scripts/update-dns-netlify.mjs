@@ -15,6 +15,12 @@ if (!cid) throw new Error('IPFS_HASH is required');
 main();
 
 async function main() {
+    await waitForCloudflareIpfs(cid);
+
+    await updateNetlifyDnsLink(cid);
+}
+
+async function updateNetlifyDnsLink(cid) {
     if (!cid) {
         throw new Error("No CID provided");
     }
@@ -27,16 +33,16 @@ async function main() {
     const records = await requestNetlify(`/dns_zones/${NETLIFY_DNS_ZONE_ID}/dns_records`);
 
     const oldDnsLinkRecord = (records || []).find(
-    (record) => record.type === "TXT" && record.hostname === NETLIFY_DNS_LINK
+        (record) => record.type === "TXT" && record.hostname === NETLIFY_DNS_LINK
     );
 
     if (oldDnsLinkRecord) {
-    console.log(`Found previous dnslink ${oldDnsLinkRecord.value}`);
+        console.log(`Found previous dnslink ${oldDnsLinkRecord.value}`);
     }
 
     if (oldDnsLinkRecord?.value === dnslink) {
-    console.log(`Target dnslink is already set`);
-    return;
+        console.log(`Target dnslink is already set`);
+        return;
     }
     
     console.log("Create a new DNS record");
@@ -53,12 +59,48 @@ async function main() {
     console.log("dnslink result", newRecord);
 
     if (oldDnsLinkRecord) {
-    console.log("Delete the old dnslink record");
-    await requestNetlify(`/dns_zones/${NETLIFY_DNS_ZONE_ID}/dns_records/${oldDnsLinkRecord.id}`, {
-        method: "DELETE",
-    });
+        console.log("Delete the old dnslink record");
+        await requestNetlify(`/dns_zones/${NETLIFY_DNS_ZONE_ID}/dns_records/${oldDnsLinkRecord.id}`, {
+            method: "DELETE",
+        });
 
-    console.log("Deleted");
+        console.log("Deleted");
+    }
+}
+
+async function waitForCloudflareIpfs(cid) {
+    if (!cid) {
+      throw new Error("No CID provided");
+    }
+  
+    const url = `https://cloudflare-ipfs.com/ipfs/${cid}`;
+  
+    console.log(`Waiting the CID to be resolved on Cloudflare: ${url}`);
+  
+    let retries = 10;
+    let resolved = false;
+  
+    while (retries > 0) {
+      console.log(`Attempt to resolve the CID, remaining retries: ${retries}`);
+  
+      await sleep(5000);
+  
+      try {
+        const res = await fetch(url);
+  
+        if (res?.ok) {
+          resolved = true;
+          break;
+        } else {
+          retries--;
+        }
+      } catch {
+        retries--;
+      }
+    }
+  
+    if (!resolved) {
+      throw new Error("Failed to resolve CID on IPFS gateway");
     }
 }
 
@@ -76,4 +118,8 @@ async function requestNetlify(path, opts) {
     } else {
         throw new Error(`Netlify error: ${await res.text()}`);
     }
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
