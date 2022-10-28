@@ -31,12 +31,14 @@ jobs:
 
       - name: Pinata
         id: pinata
-        env:
-          PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
-          PINATA_API_SECRET: ${{ secrets.PINATA_API_SECRET_KEY }}
-          PINATA_PIN_ALIAS: gmx-site
-          BUILD_PATH: ./build
-        run: node ./scripts/pinata-upload.mjs
+        uses: anantaramdas/ipfs-pinata-deploy-action@v1.6.4
+        with:
+          pin-name: gmx-site
+          path: './build'
+          pinata-api-key: ${{ secrets.PINATA_API_KEY }}
+          pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
+          verbose: true
+          remove-old: false
 
       - name: Crust
         uses: crustio/ipfs-crust-action@v2.0.3
