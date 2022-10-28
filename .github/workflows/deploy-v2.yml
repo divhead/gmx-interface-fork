@@ -38,7 +38,7 @@ jobs:
           pinata-api-key: ${{ secrets.PINATA_API_KEY }}
           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
           verbose: true
-          remove-old: false
+          remove-old: true
 
       - name: Crust
         uses: crustio/ipfs-crust-action@v2.0.3
@@ -71,5 +71,5 @@ jobs:
           NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
           NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
           NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
-          IPFS_HASH: ${{ needs.deploy.outputs.hash }}
+          IPFS_HASH: ${{ needs.deploy.outputs.cid }}
         run: node ./scripts/update-dns-netlify.mjs
