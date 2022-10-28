@@ -3,7 +3,6 @@ import pinataSDK from "@pinata/sdk";
 import fetch from "node-fetch";
 import envalid, { str } from "envalid";
 
-
 const NETLIFY_API_URL = "https://api.netlify.com/api/v1";
 
 dotenv.config({ path: ".env.deploy" });
@@ -23,8 +22,6 @@ main();
 
 async function main() {
   const cid = env.IPFS_HASH;
-
-
 
   // console.log('crust pin');
   // await crust.pin(cid);
