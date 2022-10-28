@@ -13,7 +13,9 @@ if (!PINATA_PIN_ALIAS) throw new Error('PINATA_PIN_ALIAS is required');
 main();
 
 async function main() {
-    await uploadToPinata(BUILD_PATH)
+    const cid = await uploadToPinata(BUILD_PATH);
+
+    process.env.GITHUB_OUTPUT = `hash=${cid}`
 }
 
 async function uploadToPinata(path) {
