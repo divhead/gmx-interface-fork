@@ -77,10 +77,10 @@ jobs:
             return title;
       - run: echo '${{ steps.resolve-cid.outputs.result }}'
 
-      - name: Update DNS Netlify
-        env:
-          NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
-          NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
-          NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
-          IPFS_HASH: ${{ needs.deploy.outputs.cid }}
-        run: node ./scripts/update-dns-netlify.mjs
+      # - name: Update DNS Netlify
+      #   env:
+      #     NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
+      #     NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
+      #     NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
+      #     IPFS_HASH: ${{ needs.deploy.outputs.cid }}
+      #   run: node ./scripts/update-dns-netlify.mjs
