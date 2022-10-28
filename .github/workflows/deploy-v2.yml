@@ -35,6 +35,7 @@ jobs:
           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
 
   post_deploy:
+    needs: deploy
     runs-on: ubuntu-latest
 
     environment: deploy
@@ -45,7 +46,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 2
         with:
-          cid: ${{ jobs.deploy.steps.pinata.outputs.hash }}
+          cid: ${{ needs.deploy.steps.pinata.outputs.hash }}
           seeds: ${{ secrets.CRUST_SEEDS }}
 
       - name: Update DNS
