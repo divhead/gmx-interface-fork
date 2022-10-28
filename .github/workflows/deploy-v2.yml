@@ -34,12 +34,18 @@ jobs:
           pinata-api-key: ${{ secrets.PINATA_API_KEY }}
           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
 
+  post_deploy:
+    runs-on: ubuntu-latest
+
+    environment: deploy
+
+    steps:
       - name: Crust
         uses: crustio/ipfs-crust-action@v2.0.3
         continue-on-error: true
         timeout-minutes: 2
         with:
-          cid: ${{ steps.pinata.outputs.hash }}
+          cid: ${{ jobs.deploy.steps.pinata.outputs.hash }}
           seeds: ${{ secrets.CRUST_SEEDS }}
 
       - name: Update DNS
