@@ -1,0 +1,52 @@
+name: Deploy V2
+
+on:
+  # push:
+  #   branches: ["master"]
+  # manual trigger
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment: deploy
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: yarn
+      - run: yarn
+      - run: yarn build
+
+      - name: Pinata
+        id: pinata
+        uses: anantaramdas/ipfs-pinata-deploy-action@39bbda1ce1fe24c69c6f57861b8038278d53688d
+        with:
+          pin-name: GMX Site
+          path: './build'
+          pinata-api-key: ${{ secrets.PINATA_API_KEY }}
+          pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
+
+      - name: Crust
+        uses: crustio/ipfs-crust-action@v2.0.3
+        continue-on-error: true
+        timeout-minutes: 2
+        with:
+          cid: ${{ steps.pinata.outputs.hash }}
+          seeds: ${{ secrets.CRUST_SEEDS }}
+
+      - name: Update DNS
+        env:
+          NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
+          NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
+          NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
+          IPFS_HASH: ${{ steps.pinata.outputs.hash }}
+        
+        run: yarn deploy

@@ -3,9 +3,9 @@ import pinataSDK from "@pinata/sdk";
 import fetch from "node-fetch";
 import envalid, { str } from "envalid";
 
+
 const NETLIFY_API_URL = "https://api.netlify.com/api/v1";
 
-// For local testing
 dotenv.config({ path: ".env.deploy" });
 
 const env = envalid.cleanEnv(process.env, {
@@ -16,58 +16,26 @@ const env = envalid.cleanEnv(process.env, {
   NETLIFY_DNS_ZONE_ID: str(),
   NETLIFY_DNS_LINK: str(),
 
-  PINATA_API_KEY: str(),
-  PINATA_API_SECRET: str(),
-  PINATA_PIN_ALIAS: str(),
+  IPFS_HASH: str(),
 });
 
 main();
 
 async function main() {
-  const cid = await uploadToPinata('./build');
+  const cid = env.IPFS_HASH;
+
+
+
+  // console.log('crust pin');
+  // await crust.pin(cid);
+
+  // await pinToInfura(cid);
 
   await waitForCloudflareIpfs(cid);
 
   await updateDnslinkNetlify(cid);
 
   process.exit(0);
-}
-
-async function getFleekIpfsHash() {
-  let ipfsHash;
-
-  console.log("Waiting for fleek build");
-
-  await sleep(10000);
-
-  while (!ipfsHash) {
-    const result = await fetch("https://api.fleek.co/graphql", {
-      method: "POST",
-      headers: {
-        Authorization: env.FLEEK_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `{ getSiteById(siteId: "${env.FLEEK_SITE_ID}") { latestDeploy { status ipfsHash } } }`,
-      }),
-    });
-
-    const {
-      data: {
-        getSiteById: { latestDeploy },
-      },
-    } = await result.json();
-
-    console.log("Fleek deploy info", latestDeploy);
-
-    if (latestDeploy.status === "DEPLOYED") {
-      ipfsHash = latestDeploy.ipfsHash;
-    } else {
-      await sleep(5000);
-    }
-  }
-
-  return ipfsHash;
 }
 
 async function uploadToPinata(path) {
@@ -107,7 +75,7 @@ async function uploadToPinata(path) {
           },
         ],
       },
-      cidVersion: 0,
+      cidVersion: 1,
     },
   });
 
@@ -130,6 +98,33 @@ async function uploadToPinata(path) {
   }
 
   return pinResult.IpfsHash;
+}
+
+async function pinToInfura(cid) {
+  let retries = 5;
+
+  console.log('INfura');
+
+  while (retries > 0) {
+    const res = await fetch(`https://ipfs.infura.io:5001/api/v0/pin/add?arg=${cid}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`2GhJF9DH0L0GcIvfMkPgmFJaj3H:7b08b09bb6ae8832b576bb3aef0c4ab1`, 'binary').toString('base64')}`
+      }
+    });
+  
+    if (res.ok) {
+      console.log(await res.json())
+      return;
+    } else {
+      console.log(await res.text())
+      console.log('Infura pinning error');
+      await sleep(10000)
+      retries--;
+    }
+  }
+
+ 
 }
 
 
@@ -157,7 +152,6 @@ async function updateDnslinkNetlify(cid) {
     console.log(`Target dnslink is already set`);
     return;
   }
-
   
   console.log("Create a new DNS record");
   const newRecord = await requestNetlify(`/dns_zones/${env.NETLIFY_DNS_ZONE_ID}/dns_records`, {
@@ -199,12 +193,16 @@ async function waitForCloudflareIpfs(cid) {
 
     await sleep(5000);
 
-    const res = await fetch(url);
+    try {
+      const res = await fetch(url);
 
-    if (res?.ok) {
-      resolved = true;
-      break;
-    } else {
+      if (res?.ok) {
+        resolved = true;
+        break;
+      } else {
+        retries--;
+      }
+    } catch {
       retries--;
     }
   }

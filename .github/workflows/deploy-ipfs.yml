@@ -3,6 +3,7 @@ name: Deploy IPFS
 on:
   push:
     branches: ["master"]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}
