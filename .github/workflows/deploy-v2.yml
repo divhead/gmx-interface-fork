@@ -79,6 +79,7 @@ jobs:
       - name: Resolve CID
         id: resolve-cid
         uses: maku693/action-puppeteer-script@v0
+        continue-on-error: true
         with:
           script: |
             let retries = 20
@@ -102,6 +103,7 @@ jobs:
       - name: Resolve CID 2
         id: resolve-cid-2
         uses: maku693/action-puppeteer-script@v0
+        continue-on-error: true
         with:
           script: |
             let retries = 20
@@ -125,6 +127,7 @@ jobs:
       - name: Resolve CID 3
         id: resolve-cid-3
         uses: maku693/action-puppeteer-script@v0
+        continue-on-error: true
         with:
           script: |
             let retries = 20
@@ -146,62 +149,64 @@ jobs:
             throw new Error('Unable to resolve')
 
 
-      - name: Update DNS Netlify
-        env:
-          NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
-          NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
-          NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
-          IPFS_HASH: ${{ needs.deploy.outputs.cid }}
-        run: node ./scripts/update-dns-netlify.mjs
+      # - name: Update DNS Netlify
+      #   env:
+      #     NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
+      #     NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
+      #     NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
+      #     IPFS_HASH: ${{ needs.deploy.outputs.cid }}
+      #   run: node ./scripts/update-dns-netlify.mjs
 
-      - name: Resolve dnsLink
-        id: resolve-dnsLink
-        uses: maku693/action-puppeteer-script@v0
-        with:
-          script: |
-            let retries = 5
+      # - name: Resolve dnsLink
+      #   id: resolve-dnsLink
+      #   uses: maku693/action-puppeteer-script@v0
+      #   continue-on-error: true
+      #   with:
+      #     script: |
+      #       let retries = 5
   
-            while (retries > 0) {
-              const page = await browser.newPage();
-              try {
-                await page.goto('https://app-dhead-io.ipns.cf-ipfs.com');
-                await page.waitForSelector('.connect-wallet')
-                let element = await page.$('.connect-wallet')
+      #       while (retries > 0) {
+      #         const page = await browser.newPage();
+      #         try {
+      #           await page.goto('https://app-dhead-io.ipns.cf-ipfs.com');
+      #           await page.waitForSelector('.connect-wallet')
+      #           let element = await page.$('.connect-wallet')
 
-                let value = await page.evaluate(el => el.textContent, element)
+      #           let value = await page.evaluate(el => el.textContent, element)
 
-                return value;
-              } catch (e) {
-                retries--;
-              }
-            }
+      #           return value;
+      #         } catch (e) {
+      #           retries--;
+      #         }
+      #       }
 
-            throw new Error('Unable to resolve')
+      #       throw new Error('Unable to resolve')
 
-      - run: echo '${{ steps.resolve-dnsLink.outputs.result }}'
+      # - run: echo '${{ steps.resolve-dnsLink.outputs.result }}'
 
-      - name: Test site
-        id: resolve-site
-        uses: maku693/action-puppeteer-script@v0
-        with:
-          script: |
-            let retries = 20
+      # - name: Test site
+      #   id: resolve-site
+      #   uses: maku693/action-puppeteer-script@v0
+      #   continue-on-error: true
+      #   with:
+      #     script: |
+      #       let retries = 20
   
-            while (retries > 0) {
-              const page = await browser.newPage();
-              try {
-                await page.goto('https://app.dhead.io');
-                await page.waitForSelector('.connect-wallet')
-                let element = await page.$('.connect-wallet')
+      #       while (retries > 0) {
+      #         const page = await browser.newPage();
+      #         try {
+      #           await page.goto('https://app.dhead.io');
+      #           await page.waitForSelector('.connect-wallet')
+      #           let element = await page.$('.connect-wallet')
 
-                let value = await page.evaluate(el => el.textContent, element)
+      #           let value = await page.evaluate(el => el.textContent, element)
 
-                return value;
-              } catch (e) {
-                retries--;
-              }
-            }
+      #           return value;
+      #         } catch (e) {
+      #           retries--;
+      #         }
+      #       }
 
-            throw new Error('Unable to resolve')
+      #       throw new Error('Unable to resolve')
 
-      - run: echo '${{ steps.resolve-site.outputs.result }}'
+      # - run: echo '${{ steps.resolve-site.outputs.result }}'
