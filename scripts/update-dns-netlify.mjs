@@ -19,7 +19,12 @@ async function main() {
 
     await updateNetlifyDnsLink(cid);
 
+    await sleep(10000)
+
     await purgeCloudflareDNSCache()
+
+    await sleep(20000)
+
     await waitForCloudflareDnsLink(cid)
 }
 

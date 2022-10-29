@@ -40,13 +40,13 @@ jobs:
           verbose: true
           remove-old: true
 
-      - name: Crust
-        uses: crustio/ipfs-crust-action@v2.0.3
-        continue-on-error: true
-        timeout-minutes: 2
-        with:
-          cid: ${{ steps.pinata.outputs.hash }}
-          seeds: ${{ secrets.CRUST_SEEDS }}
+      # - name: Crust
+      #   uses: crustio/ipfs-crust-action@v2.0.3
+      #   continue-on-error: true
+      #   timeout-minutes: 2
+      #   with:
+      #     cid: ${{ steps.pinata.outputs.hash }}
+      #     seeds: ${{ secrets.CRUST_SEEDS }}
 
   update-dns:
     needs: 
@@ -71,11 +71,19 @@ jobs:
         uses: maku693/action-puppeteer-script@v0
         with:
           script: |
-            const page = await browser.newPage();
-            await page.goto('https://cloudflare-ipfs.com/ipfs/${{ needs.deploy.outputs.cid }}');
-            const title = await page.$eval('title', el => el.textContent);
-            return title;
-      - run: echo '${{ steps.resolve-cid.outputs.result }}'
+            let retries = 5
+  
+            while (retries > 0) {
+              const page = await browser.newPage();
+              try {
+                await page.goto('https://cloudflare-ipfs.com/ipfs/${{ needs.deploy.outputs.cid }}');
+                return;
+              } catch (e) {
+                retries--;
+              }
+            }
+
+            throw new Error('Unable to resolve')
 
       - name: Update DNS Netlify
         env:
@@ -90,8 +98,16 @@ jobs:
         uses: maku693/action-puppeteer-script@v0
         with:
           script: |
-            const page = await browser.newPage();
-            await page.goto('https://app-dhead-io.ipns.cf-ipfs.com');
-            const title = await page.$eval('title', el => el.textContent);
-            return title;
-      - run: echo '${{ steps.resolve-dnsLink.outputs.result }}'
+            let retries = 5
+  
+            while (retries > 0) {
+              const page = await browser.newPage();
+              try {
+                await page.goto('https://app-dhead-io.ipns.cf-ipfs.com');
+                return;
+              } catch (e) {
+                retries--;
+              }
+            }
+
+            throw new Error('Unable to resolve')
