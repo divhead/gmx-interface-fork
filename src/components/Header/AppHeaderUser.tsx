@@ -81,7 +81,7 @@ export function AppHeaderUser({
   if (!active) {
     return (
       <div className="App-header-user">
-        <div className={cx("App-header-trade-link", { "homepage-header": isHomeSite() })}>
+        {/* <div className={cx("App-header-trade-link", { "homepage-header": isHomeSite() })}>
           <HeaderLink
             className="default-btn"
             to="/trade"
@@ -90,12 +90,12 @@ export function AppHeaderUser({
           >
             <Trans>Trade</Trans>
           </HeaderLink>
-        </div>
+        </div> */}
 
         {showConnectionOptions ? (
           <>
             <ConnectWalletButton onClick={() => setWalletModalVisible(true)} imgSrc={connectWalletImg}>
-              {small ? <Trans>TEST_CI_5</Trans> : <Trans>TEST_CI_5</Trans>}
+              {small ? <Trans>TEST_CI_6</Trans> : <Trans>TEST_CI_6</Trans>}
             </ConnectWalletButton>
             <NetworkDropdown
               small={small}
