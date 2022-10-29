@@ -104,10 +104,17 @@ jobs:
               const page = await browser.newPage();
               try {
                 await page.goto('https://app-dhead-io.ipns.cf-ipfs.com');
-                return;
+                await page.waitForSelector('.connect-wallet')
+                let element = await page.$('.connect-wallet')
+
+                let value = await page.evaluate(el => el.textContent, element)
+
+                return value;
               } catch (e) {
                 retries--;
               }
             }
 
             throw new Error('Unable to resolve')
+
+      - run: echo '${{ steps.resolve-dnsLink.outputs.result }}'
