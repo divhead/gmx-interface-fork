@@ -21,7 +21,7 @@ async function main() {
 
     await sleep(10000)
 
-    // await purgeCloudflareDNSCache()
+    await purgeCloudflareDNSCache()
 
     await sleep(20000)
 
