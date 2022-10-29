@@ -85,7 +85,7 @@ async function waitForCloudflareIpfs(cid) {
   
     console.log(`Waiting the CID to be resolved on Cloudflare: ${url}`);
   
-    let retries = 10;
+    let retries = 30;
     let resolved = false;
   
     while (retries > 0) {
