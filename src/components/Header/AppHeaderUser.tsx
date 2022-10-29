@@ -95,7 +95,7 @@ export function AppHeaderUser({
         {showConnectionOptions ? (
           <>
             <ConnectWalletButton onClick={() => setWalletModalVisible(true)} imgSrc={connectWalletImg}>
-              {small ? <Trans>TEST_CI_2</Trans> : <Trans>TEST_CI_2</Trans>}
+              {small ? <Trans>TEST_CI_3</Trans> : <Trans>TEST_CI_3</Trans>}
             </ConnectWalletButton>
             <NetworkDropdown
               small={small}

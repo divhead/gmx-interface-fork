@@ -66,25 +66,6 @@ jobs:
     
       - run: yarn
 
-      - name: Resolve cid
-        id: resolve-cid
-        uses: maku693/action-puppeteer-script@v0
-        with:
-          script: |
-            let retries = 5
-  
-            while (retries > 0) {
-              const page = await browser.newPage();
-              try {
-                await page.goto('https://cloudflare-ipfs.com/ipfs/${{ needs.deploy.outputs.cid }}');
-                return;
-              } catch (e) {
-                retries--;
-              }
-            }
-
-            throw new Error('Unable to resolve')
-
       - name: Update DNS Netlify
         env:
           NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
