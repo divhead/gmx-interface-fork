@@ -1,40 +1,40 @@
-name: Deploy IPFS
+# name: Deploy IPFS
 
-on:
-  push:
-    branches: ["master"]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: ["master"]
+#   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.ref }}
+#   cancel-in-progress: true
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    environment: deploy
+#     environment: deploy
 
-    env:
-      FLEEK_API_KEY: ${{ secrets.FLEEK_API_KEY }}
-      FLEEK_SITE_ID: ${{ secrets.FLEEK_SITE_ID }}
+#     env:
+#       FLEEK_API_KEY: ${{ secrets.FLEEK_API_KEY }}
+#       FLEEK_SITE_ID: ${{ secrets.FLEEK_SITE_ID }}
 
-      NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
-      NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
-      NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
+#       NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
+#       NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
+#       NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
 
-      # PINATA_API_KEY: ${{ secrets.NETLIFY_DNS_LINK }}
-      # : ${{ secrets.NETLIFY_DNS_LINK }}
-      # PINATA_: ${{ secrets.NETLIFY_DNS_LINK }}
+#       # PINATA_API_KEY: ${{ secrets.NETLIFY_DNS_LINK }}
+#       # : ${{ secrets.NETLIFY_DNS_LINK }}
+#       # PINATA_: ${{ secrets.NETLIFY_DNS_LINK }}
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: yarn
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Deploy
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 16.x
+#           cache: yarn
 
-      - run: yarn
-      - run: yarn build
-      - run: yarn deploy
+#       - run: yarn
+#       - run: yarn build
+#       - run: yarn deploy
