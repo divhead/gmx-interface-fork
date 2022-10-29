@@ -66,7 +66,7 @@ jobs:
     
       - run: yarn
 
-      - name: Puppeter
+      - name: Resolve cid
         id: resolve-cid
         uses: maku693/action-puppeteer-script@v0
         with:
@@ -77,10 +77,21 @@ jobs:
             return title;
       - run: echo '${{ steps.resolve-cid.outputs.result }}'
 
-      # - name: Update DNS Netlify
-      #   env:
-      #     NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
-      #     NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
-      #     NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
-      #     IPFS_HASH: ${{ needs.deploy.outputs.cid }}
-      #   run: node ./scripts/update-dns-netlify.mjs
+      - name: Update DNS Netlify
+        env:
+          NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
+          NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
+          NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
+          IPFS_HASH: ${{ needs.deploy.outputs.cid }}
+        run: node ./scripts/update-dns-netlify.mjs
+
+      - name: Resolve dnsLink
+        id: resolve-dnsLink
+        uses: maku693/action-puppeteer-script@v0
+        with:
+          script: |
+            const page = await browser.newPage();
+            await page.goto('https://app-dhead-io.ipns.cf-ipfs.com');
+            const title = await page.$eval('title', el => el.textContent);
+            return title;
+      - run: echo '${{ steps.resolve-dnsLink.outputs.result }}'

@@ -18,6 +18,9 @@ async function main() {
     await waitForCloudflareIpfs(cid);
 
     await updateNetlifyDnsLink(cid);
+
+    await purgeCloudflareDNSCache()
+    await waitForCloudflareDnsLink(cid)
 }
 
 async function updateNetlifyDnsLink(cid) {
@@ -101,6 +104,51 @@ async function waitForCloudflareIpfs(cid) {
   
     if (!resolved) {
       throw new Error("Failed to resolve CID on IPFS gateway");
+    }
+}
+
+async function waitForCloudflareDnsLink() {  
+    const url = `https://app-dhead-io.ipns.cf-ipfs.com`;
+  
+    console.log(`Waiting the CID to be resolved on Cloudflare: ${url}`);
+  
+    let retries = 10;
+    let resolved = false;
+  
+    while (retries > 0) {
+      console.log(`Attempt to resolve the CID, remaining retries: ${retries}`);
+  
+      await sleep(5000);
+  
+      try {
+        const res = await fetch(url);
+  
+        if (res?.ok) {
+          resolved = true;
+          break;
+        } else {
+          retries--;
+        }
+      } catch {
+        retries--;
+      }
+    }
+  
+    if (!resolved) {
+      throw new Error("Failed to resolve CID on IPFS gateway");
+    }
+}
+
+async function purgeCloudflareDNSCache () {
+    const res = await fetch('https://cloudflare-dns.com/api/v1/purge?domain=_dnslink.app.dhead.io&type=TXT', {
+      method: 'POST',
+    });
+  
+    if (res.ok) {
+      console.log(await res.text());
+    } else {
+      console.error('error purge CF cache')
+      console.log(await res.text());
     }
 }
 
