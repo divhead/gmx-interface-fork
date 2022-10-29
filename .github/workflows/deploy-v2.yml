@@ -101,7 +101,7 @@ jobs:
       - run: echo '${{ steps.resolve-dnsLink.outputs.result }}'
 
       - name: Test site
-        id: resolve-dnsLink
+        id: resolve-site
         uses: maku693/action-puppeteer-script@v0
         with:
           script: |
@@ -124,4 +124,4 @@ jobs:
 
             throw new Error('Unable to resolve')
 
-      - run: echo '${{ steps.resolve-dnsLink.outputs.result }}'
+      - run: echo '${{ steps.resolve-site.outputs.result }}'
