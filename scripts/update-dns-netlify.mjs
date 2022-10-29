@@ -15,6 +15,8 @@ if (!cid) throw new Error('IPFS_HASH is required');
 main();
 
 async function main() {
+    await pinToInfura(cid);
+
     await waitForCloudflareIpfs(cid);
 
     await updateNetlifyDnsLink(cid);
@@ -111,6 +113,31 @@ async function waitForCloudflareIpfs(cid) {
       throw new Error("Failed to resolve CID on IPFS gateway");
     }
 }
+
+async function pinToInfura(cid) {
+    let retries = 5;
+  
+    console.log('INfura');
+  
+    while (retries > 0) {
+      const res = await fetch(`https://ipfs.infura.io:5001/api/v0/pin/add?arg=${cid}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`2GhJF9DH0L0GcIvfMkPgmFJaj3H:7b08b09bb6ae8832b576bb3aef0c4ab1`, 'binary').toString('base64')}`
+        }
+      });
+    
+      if (res.ok) {
+        console.log(await res.json())
+        return;
+      } else {
+        console.log(await res.text())
+        console.log('Infura pinning error');
+        await sleep(10000)
+        retries--;
+      }
+    }
+  }
 
 async function waitForCloudflareDnsLink() {  
     const url = `https://app-dhead-io.ipns.cf-ipfs.com`;
