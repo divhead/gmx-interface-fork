@@ -27,9 +27,11 @@ jobs:
           cache: yarn
 
       - uses: tanmancan/action-setup-ssh-agent-key@1.0.0
-        name: Pin to private nodes
+        name: Setup ssh
         with:
           ssh-private-key: ${{ secrets.PRIVATE_NODE_SSH_KEY }}
+
+      - name: Pin to private node
         run: ./scripts/pin-to-nodes.sh
 
       - run: yarn
