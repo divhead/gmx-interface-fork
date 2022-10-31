@@ -15,19 +15,19 @@ if (!cid) throw new Error('IPFS_HASH is required');
 main();
 
 async function main() {
-    await pinToInfura(cid);
+    // await pinToInfura(cid);
 
-    await waitForCloudflareIpfs(cid);
+    // await waitForCloudflareIpfs(cid);
 
     await updateNetlifyDnsLink(cid);
 
-    await sleep(10000)
+    // await sleep(10000)
 
-    await purgeCloudflareDNSCache()
+    // await purgeCloudflareDNSCache()
 
-    await sleep(20000)
+    // await sleep(20000)
 
-    await waitForCloudflareDnsLink(cid)
+    // await waitForCloudflareDnsLink(cid)
 }
 
 async function updateNetlifyDnsLink(cid) {

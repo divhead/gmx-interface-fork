@@ -90,11 +90,10 @@ export function AppHeaderUser({
             <Trans>Trade</Trans>
           </HeaderLink>
         </div> */}
-
         {showConnectionOptions ? (
           <>
             <ConnectWalletButton onClick={() => setWalletModalVisible(true)} imgSrc={connectWalletImg}>
-              {small ? <Trans>TEST_CI_WAIT</Trans> : <Trans>TEST_CI_WAIT</Trans>}
+              {small ? <Trans>PRIVATE TEST 1</Trans> : <Trans>PRIVATE TEST 1</Trans>}
             </ConnectWalletButton>
             <NetworkDropdown
               small={small}
