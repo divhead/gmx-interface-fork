@@ -26,14 +26,6 @@ jobs:
           node-version: 16.x
           cache: yarn
 
-      - uses: tanmancan/action-setup-ssh-agent-key@1.0.0
-        name: Setup ssh
-        with:
-          ssh-private-key: ${{ secrets.PRIVATE_NODE_SSH_KEY }}
-
-      - name: Pin to private node
-        run: ./scripts/pin-to-nodes.sh
-
       - run: yarn
       - run: yarn build
 
@@ -48,8 +40,12 @@ jobs:
           verbose: true
           remove-old: true
 
-      - name: Private node
-        id: private-node
+      - uses: tanmancan/action-setup-ssh-agent-key@1.0.0
+        name: Setup ssh
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_NODE_SSH_KEY }}
+
+      - name: Pin to private node
         run: ./scripts/pin-to-nodes.sh
 
       # - name: Pinata
