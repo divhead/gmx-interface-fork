@@ -15,9 +15,6 @@ jobs:
 
     environment: deploy
 
-    outputs:
-      cid: ${{ steps.pinata.outputs.hash }}
-
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -52,5 +49,5 @@ jobs:
           NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
           NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
           NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
-          IPFS_HASH: ${{ needs.deploy.outputs.cid }}
+          IPFS_HASH: ${{ steps.pinata.outputs.hash }}
         run: node ./scripts/update-dns-netlify.mjs
