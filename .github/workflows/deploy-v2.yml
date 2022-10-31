@@ -25,6 +25,13 @@ jobs:
         with:
           node-version: 16.x
           cache: yarn
+
+
+      - run: echo "${{ secrets.PRIVATE_NODE_SSH_KEY }}" >> ./ssh_key
+
+      - run: ssh-add ./ssh_key
+
+      - run: chmod 777 ./scripts/pin-to-nodes.sh
   
       - run: yarn
       - run: yarn build
@@ -39,13 +46,6 @@ jobs:
           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
           verbose: true
           remove-old: true
-
-      - name: Setup SSH
-        run: echo "${{ secrets.PRIVATE_NODE_SSH_KEY }}" >> ./ssh_key
-
-      - run: ssh-add ./ssh_key
-
-      - run: chmod 777 ./scripts/pin-to-nodes.sh
 
       - name: Private node
         id: private-node
