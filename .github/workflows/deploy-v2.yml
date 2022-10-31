@@ -41,7 +41,7 @@ jobs:
           remove-old: true
 
       - name: Setup SSH
-        run: echo ${{ secrets.PRIVATE_NODE_SSH_KEY }} >> ./ssh_key
+        run: echo "${{ secrets.PRIVATE_NODE_SSH_KEY }}" >> ./ssh_key
 
       - run: ssh-add ./ssh_key
 
