@@ -4,4 +4,4 @@ ssh $SSH_ADDRESS "rm -rf ~/ipfs-staging/build"
 
 rsync -r ./build $SSH_ADDRESS:~/ipfs-staging;
 
-ssh $SSH_ADDRESS "docker exec ipfs-node ipfs add -rQ /export/build --cid-version=1"
+ssh $SSH_ADDRESS "docker exec ipfs-node ipfs add -rQ /export/build"
