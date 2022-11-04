@@ -1,53 +1,53 @@
-name: Deploy V2
+# name: Deploy V2
 
-on:
-  push:
-    branches: ["master"]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: ["master"]
+#   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.ref }}
+#   cancel-in-progress: true
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    environment: deploy
+#     environment: deploy
 
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: yarn
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: 16.x
+#           cache: yarn
 
-      - run: yarn
-      - run: yarn build
+#       - run: yarn
+#       - run: yarn build
 
-      - name: Pinata
-        id: pinata
-        uses: anantaramdas/ipfs-pinata-deploy-action@v1.6.4
-        with:
-          pin-name: gmx-site
-          path: './build'
-          pinata-api-key: ${{ secrets.PINATA_API_KEY }}
-          pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
-          verbose: true
-          remove-old: true
+#       - name: Pinata
+#         id: pinata
+#         uses: anantaramdas/ipfs-pinata-deploy-action@v1.6.4
+#         with:
+#           pin-name: gmx-site
+#           path: './build'
+#           pinata-api-key: ${{ secrets.PINATA_API_KEY }}
+#           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
+#           verbose: true
+#           remove-old: true
 
-      - uses: tanmancan/action-setup-ssh-agent-key@1.0.0
-        name: Setup ssh
-        with:
-          ssh-private-key: ${{ secrets.PRIVATE_NODE_SSH_KEY }}
+#       - uses: tanmancan/action-setup-ssh-agent-key@1.0.0
+#         name: Setup ssh
+#         with:
+#           ssh-private-key: ${{ secrets.PRIVATE_NODE_SSH_KEY }}
 
-      - name: Pin to private node
-        run: ./scripts/pin-to-nodes.sh
+#       - name: Pin to private node
+#         run: ./scripts/pin-to-nodes.sh
 
-      - name: Update DNS Netlify
-        env:
-          NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
-          NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
-          NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
-          IPFS_HASH: ${{ steps.pinata.outputs.hash }}
-        run: node ./scripts/update-dns-netlify.mjs
+#       - name: Update DNS Netlify
+#         env:
+#           NETLIFY_API_KEY: ${{ secrets.NETLIFY_API_KEY }}
+#           NETLIFY_DNS_ZONE_ID: ${{ secrets.NETLIFY_DNS_ZONE_ID }}
+#           NETLIFY_DNS_LINK: ${{ secrets.NETLIFY_DNS_LINK }}
+#           IPFS_HASH: ${{ steps.pinata.outputs.hash }}
+#         run: node ./scripts/update-dns-netlify.mjs
