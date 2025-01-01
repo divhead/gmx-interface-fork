@@ -1,0 +1,30 @@
+name: Update Test branch
+
+on:
+  push:
+    branches:
+      - master    # Triggers when there's a push to master branch
+
+jobs:
+  merge-master-to-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0    # Fetch all history for all branches
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'github-actions@github.com'
+          
+      - name: Merge master into test
+        run: |
+          git checkout test
+          git merge master
+          git push origin test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
